@@ -186,7 +186,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                                 'w'=> $weight //total weight of items
                             ]],
                             'respond'=> true,
-                            'destination'=> 'Lagos State'
+                            'destination'=> $arr_states[$state]
                         ]),
                         // 'timeout' => '5',
                         // 'redirection' => '5',
