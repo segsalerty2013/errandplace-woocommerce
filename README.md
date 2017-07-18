@@ -1,4 +1,4 @@
-= Wordpress plugin for Errands & Logistics Integrations =
+# Wordpress plugin for ErrandPlace Shipping Method
 
 Contributors: Mustafa Segun
 Tags: errandplace, woocommerce, logistics, shipping, delivery services, errands, nigeria, lagos
