@@ -5,8 +5,8 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 /**
  * Plugin Name: ErrandPlace Shipping
  * Plugin URI: 
- * Description: Automated Shipping Method and Handling for WooCommerce powered by ErrandPlace. One place for reliable errand, shipping and logistic service providers. Currently supports only businesses in <strong>NIGERIA</strong>.
- * Version: 1.1.0
+ * Description: Automated Shipping Method and Handling for WooCommerce. One place for reliable errand, shipping and logistic service providers. Currently supports only businesses in <strong>NIGERIA</strong>.
+ * Version: 1.0.0
  * Author: ErrandPlace
  * Author URI: https://www.errandplace.com
  * License: GPL-3.0+
@@ -21,7 +21,7 @@ if ( ! defined( 'WPINC' ) ) {
  
 }
 
-define( 'WC_ERRANDPLACE_VERSION', '1.1.0' );
+define( 'WC_ERRANDPLACE_VERSION', '1.0.0' );
 define( 'WC_ERRANDPLACE_ID', 'errandplace' );
 /*
  * Check if WooCommerce is active
