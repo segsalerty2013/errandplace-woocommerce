@@ -1,4 +1,4 @@
-# Wordpress plugin for ErrandPlace Shipping Method
+# Woocommerce plugin for ErrandPlace Shipping Method
 
 - Contributors: Mustafa Segun
 - Tags: errandplace, woocommerce, logistics, shipping, delivery services, errands, nigeria, lagos
@@ -66,19 +66,28 @@ To configure the plugin, go to __WooCommerce > Settings__ from the left hand me
 * __Dedicated Partner (Optional)__ - Same and __Endpoint__ , you need to reach out to use for this which allows you to only plug into and get pricing from a dedicated Partner of your choice.
 * __Default Weight (kg)__ - If your product doesnt have a weight defined in it. What default should __ErrandPlace__ use in fetching for shipping cost ?
 * __Flat Amount (NGN)__ - Whenever __ErrandPlace__ do not have a Partner available to ship item to customer's address. What default flat amount should be used ?
+* __Using Dokan Multivendor Plugin? (Optional)__ - Toggle, We support marketplace/multi-vendor store to use our plugin to power shipping on their store. Currently supports DOKAN plugin only for now.
 * Click on __Save Changes__ for the changes you made to be effected.
 
 
 == Frequently Asked Questions ==
+
+= Is it FREE ? =
+
+1.  Yes. This is completely FREE, Integration, Usage and Support and etc
 
 = What Do I Need To Use The Plugin =
 
 1.	You need to have WooCommerce plugin installed and activated on your WordPress site.
 2.	You need to contact __ErrandPlace__ via [ErrandPlace](https://errandplace.com) for __Endpoint__ and more details.
 
+= How do I use this with my MarketPlace / Multi-Vendor Store ? =
+
+*   You need to contact __ErrandPlace__ via [ErrandPlace](https://errandplace.com) for __Endpoint__ and more details.
+
 == Changelog ==
 
-= 1.0.0, July 20, 2017 =
+= 1.1.0, July 20, 2017 =
 *   First release
 
 == Repository ==
