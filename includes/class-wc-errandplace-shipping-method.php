@@ -1,7 +1,7 @@
 <?php
 
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
- 
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -142,6 +142,13 @@ function WC_Errandplace_Shipping_Method(){
                   'description' => __( 'Use this amount if no match is found from ErrandPlace', 'errandplace' ),
                   'default' => 3000
                   ),
+                
+             'dokan_miltivendor' => array(
+                  'title' => __( 'Using Dokan Multivendor Plugin? (Optional)', 'errandplace' ),
+                  'type' => 'checkbox',
+                  'description' => __( 'Tick this option if you run a multi-vendor marketplace powered by DOKAN plugin only for now.', 'errandplace' ),
+                  'default' => 'no'
+                  ),
              );
 
         }
@@ -158,7 +165,8 @@ function WC_Errandplace_Shipping_Method(){
             $weight = 0;
             $cost = 0;
             $state_seleted = $package["destination"]["state"];
-
+            $store_owners_stack_weight = [];
+            $api_comm_origins = [];
             foreach ( $package['contents'] as $item_id => $values ) 
             { 
                 $_product = $values['data']; 
@@ -167,19 +175,37 @@ function WC_Errandplace_Shipping_Method(){
                     //this product has an invalid or no weight set. so, lets use the default
                     $_product_weight = floatval($this->settings['weight']);
                 }
-                $weight += ($_product_weight * $values['quantity']); 
+                $weight += ($_product_weight * $values['quantity']);
+                if($this->settings['dokan_miltivendor'] === 'yes'){
+                    $author = get_user_by( 'id', $_product->post->post_author );
+                    $store_owner = dokan_get_store_info( $author->ID )['store_name'];
+                    if(array_key_exists($store_owner, $store_owners_stack_weight)){
+                        $store_owners_stack_weight[$store_owner] += $weight; //add to this seller's weight to ship
+                    }
+                    else{
+                        $store_owners_stack_weight[$store_owner] = $weight;
+                    }
+                }
+                else{
+                    array_push($store_owners_stack_weight, $weight);
+                }
             }
-
-            $weight = wc_get_weight( $weight, 'kg' );
+            
+            foreach($store_owners_stack_weight as $value){
+                $weight = wc_get_weight( $value, 'kg' );
+                array_push($api_comm_origins, (object)[
+                    'o'=> (string) wc_get_base_location()['state'],
+                    'w'=> $weight //total weight of items
+                ]);
+            }
+            
             $args = [
                 'body' => json_encode([
                     'channel'=> 'woocommerce',
                     'vendor'=> $this->getPartnerId(),
-                    'origin'=> [(object)[
-                        'o'=> (string) wc_get_base_location()['state'],
-                        'w'=> $weight //total weight of items
-                    ]],
+                    'origin'=> $api_comm_origins,
                     'respond'=> true,
+                    'is_exact'=> true,
                     'destination'=> $state_seleted
                 ]),
                 'timeout' => '50',
@@ -189,19 +215,14 @@ function WC_Errandplace_Shipping_Method(){
             $response = wp_remote_retrieve_body(wp_remote_post( $this->getEndpoint().'/logistics/query', $args ));
             $queryErrand = json_decode($response, FALSE);
             if($queryErrand->code === '00'){
-                if(sizeof($queryErrand->data->match) === 0){
+                if($queryErrand->data->respond_total_cost < 1){
                     $calculated_cost = $this->settings['flat']?$this->settings['flat']:0;
                 }
                 else{
                     //TODO: this will autopick the first in the array for now
                     //but later version will do more
                     WC()->session->set(WC_ERRANDPLACE_ID.'_ref', $queryErrand->data->ref);
-                    foreach ($queryErrand->data->match as $value){
-                        if(!empty((array) $value->zone->pricings)){
-                            $calculated_cost = $value->zone->pricings->amount;
-                            break;
-                        }
-                    }
+                    $calculated_cost = $queryErrand->data->respond_total_cost;
                 }
             }
 
@@ -237,12 +258,19 @@ function WC_Errandplace_Shipping_Method(){
         }
 
         public function wc_ng_counties_fetch_states ( ) {
+            global $states;
             $countries = [];
+            $arr = [];
             $response = wp_remote_retrieve_body(wp_remote_get( $this->getEndpoint().'/location/nigeria/states'));
             $queryStates = json_decode($response, FALSE);
             if($queryStates->code === '00'){
-                $countries['NG'] = array_combine($queryStates->data, $queryStates->data);
+                foreach($queryStates->data as $value){
+                    $arr[$value] = __( $value, 'woocommerce' );
+                }
+                $countries['NG'] = $arr;
             }
+            
+            $states['NG'] = $arr;
             return $countries;
         }
 
@@ -266,9 +294,11 @@ function WC_Errandplace_Shipping_Method(){
             }
             //require_once plugin_dir_path( __FILE__ ) . 'includes/class-errandplace-country-states.php';
             //require_once plugin_dir_path( __FILE__ ) . 'includes/class-wc-errandplace-shipping-method.php';
-            add_filter('woocommerce_states', array($this, 'wc_ng_counties_fetch_states'), 10, 0);
-            add_filter('woocommerce_countries_shipping_country_states', array($this, 'wc_ng_counties_fetch_states'), 10, 0);
-            add_filter('woocommerce_countries_base_state', array($this, 'wc_ng_counties_fetch_states'), 10, 0);
+            add_filter('woocommerce_states', array($this, 'wc_ng_counties_fetch_states'));
+            
+            add_filter('woocommerce_countries_allowed_country_states', array($this, 'wc_ng_counties_fetch_states'));
+            add_filter('woocommerce_countries_shipping_country_states', array($this, 'wc_ng_counties_fetch_states'));
+            add_filter('woocommerce_countries_base_state', array($this, 'wc_ng_counties_fetch_states'));
 
             //add_filter('woocommerce_countries_allowed_countries', 'wc_country_allowed', 10, 0);
             add_action('woocommerce_review_order_before_cart_contents', array($this, 'errandplace_validate_order'), 10, 1);
