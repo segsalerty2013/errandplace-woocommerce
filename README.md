@@ -1,13 +1,13 @@
 # Wordpress plugin for ErrandPlace Shipping Method
 
-Contributors: Mustafa Segun
-Tags: errandplace, woocommerce, logistics, shipping, delivery services, errands, nigeria, lagos
-Requires at least: 4.4
-Tested up to: 4.8
-Stable tag: 1.1.0
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Repository: [https://github.com/segsalerty2013/errandplace-woocommerce](https://github.com/segsalerty2013/errandplace-woocommerce)
+- Contributors: Mustafa Segun
+- Tags: errandplace, woocommerce, logistics, shipping, delivery services, errands, nigeria, lagos
+- Requires at least: 4.4
+- Tested up to: 4.8
+- Stable tag: 1.1.0
+- License: GPLv2 or later
+- License URI: http://www.gnu.org/licenses/gpl-2.0.html
+- Repository: [https://github.com/segsalerty2013/errandplace-woocommerce](https://github.com/segsalerty2013/errandplace-woocommerce)
 
 == Description ==
 
