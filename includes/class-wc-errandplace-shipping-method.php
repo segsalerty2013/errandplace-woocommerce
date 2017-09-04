@@ -167,6 +167,7 @@ function WC_Errandplace_Shipping_Method(){
             $state_seleted = $package["destination"]["state"];
             $store_owners_stack_weight = [];
             $api_comm_origins = [];
+            $map_store_owner_state = [];
             foreach ( $package['contents'] as $item_id => $values ) 
             { 
                 $_product = $values['data']; 
@@ -184,6 +185,7 @@ function WC_Errandplace_Shipping_Method(){
                     }
                     else{
                         $store_owners_stack_weight[$store_owner] = $weight;
+                        $map_store_owner_state[$store_owner] = dokan_get_store_info( $author->ID )['address']['state'];
                     }
                 }
                 else{
@@ -191,10 +193,12 @@ function WC_Errandplace_Shipping_Method(){
                 }
             }
             
-            foreach($store_owners_stack_weight as $value){
+            foreach($store_owners_stack_weight as $key=>$value){
                 $weight = wc_get_weight( $value, 'kg' );
                 array_push($api_comm_origins, (object)[
-                    'o'=> (string) wc_get_base_location()['state'],
+                    'o'=> $this->settings['dokan_miltivendor'] === 'yes'?
+                        $this->get_errandplace_state_from_state_code($map_store_owner_state[$key]):
+                        (string) wc_get_base_location()['state'],
                     'w'=> $weight //total weight of items
                 ]);
             }
@@ -278,6 +282,7 @@ function WC_Errandplace_Shipping_Method(){
             add_filter('woocommerce_shipping_calculator_enable_postcode', '__return_false');
             unset($fields['billing']['billing_postcode']);
             unset($fields['shipping']['shipping_postcode']);
+//            unset($fields['billing']['billing_state']);
             return $fields;
         }
 
@@ -298,11 +303,55 @@ function WC_Errandplace_Shipping_Method(){
             
             add_filter('woocommerce_countries_allowed_country_states', array($this, 'wc_ng_counties_fetch_states'));
             add_filter('woocommerce_countries_shipping_country_states', array($this, 'wc_ng_counties_fetch_states'));
+            add_filter('woocommerce_countries_billing_country_states', array($this, 'wc_ng_counties_fetch_states'));
             add_filter('woocommerce_countries_base_state', array($this, 'wc_ng_counties_fetch_states'));
 
             //add_filter('woocommerce_countries_allowed_countries', 'wc_country_allowed', 10, 0);
             add_action('woocommerce_review_order_before_cart_contents', array($this, 'errandplace_validate_order'), 10, 1);
             add_action('woocommerce_after_checkout_validation', array($this, 'errandplace_validate_order'), 10, 1);
+        }
+        
+        private function get_errandplace_state_from_state_code($code){
+            $arr_states = [
+                'AB' => 'Abia State' ,
+                'FC' => 'FCT' ,
+                'AD' => 'Adamawa State' ,
+                'AK' => 'Akwa Ibom State' ,
+                'AN' => 'Anambra State' ,
+                'BA' => 'Bauchi State' ,
+                'BY' => 'Bayelsa State' ,
+                'BE' => 'Benue State' ,
+                'BO' => 'Borno State' ,
+                'CR' => 'Cross River State' ,
+                'DE' => 'Delta State' ,
+                'EB' => 'Ebonyi State' ,
+                'ED' => 'Edo State' ,
+                'EK' => 'Ekiti State' ,
+                'EN' => 'Enugu State' ,
+                'GO' => 'Gombe State' ,
+                'IM' => 'Imo State' ,
+                'JI' => 'Jigawa State' ,
+                'KD' => 'Kaduna State' ,
+                'KN' => 'Kano State' ,
+                'KT' => 'Katsina State' ,
+                'KE' => 'Kebbi State' ,
+                'KO' => 'Kogi State' ,
+                'KW' => 'Kwara State' ,
+                'LA' => 'Lagos State' ,
+                'NA' => 'Nasarawa State' ,
+                'NI' => 'Niger State' ,
+                'OG' => 'Ogun State' ,
+                'ON' => 'Ondo State' ,
+                'OS' => 'Osun State' ,
+                'OY' => 'Oyo State' ,
+                'PL' => 'Plateau State' ,
+                'RI' => 'Rivers State' ,
+                'SO' => 'Sokoto State' ,
+                'TA' => 'Taraba State' ,
+                'YO' => 'Yobe State' ,
+                'ZA' => 'Zamfara State'
+            ];
+            return $arr_states[$code];
         }
     }
 }
